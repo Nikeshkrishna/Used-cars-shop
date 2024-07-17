@@ -3,7 +3,7 @@ from django.views.generic import View
 from royaldrive.forms import RegistrationForm,SigninForm
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
-from royaldrive.models import Car,favouriteItem,favourites
+from royaldrive.models import Car,favouriteItem,favourites,Order,OrderItems
 
 # Create your views here.
 
@@ -11,15 +11,15 @@ from royaldrive.models import Car,favouriteItem,favourites
 class SignupView(View):
     
     def get(self,request,*args,**kwargs):
-        form=RegistrationForm
-        return render (request,"signup.html",{"form":form})
+        form=RegistrationForm()
+        return render (request,"login.html",{"form":form})
     
     def post(self,request,*args,**kwargs):
         form=RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect("signin")
-        return render (request,"signup.html",{"form":form})
+        return render (request,"login.html",{"form":form})
     
 
 class SigninView(View):
@@ -80,5 +80,46 @@ class FavoriteListView(View):
 class FavoriteremoveView(View):
     def get(self,request,*args,**kwargs):
         id=kwargs.get("pk")
-        favouriteItem.objects.get(id=id).delete()
+        car_obj=favouriteItem.objects.get(id=id)
+        car_obj.delete()
         return redirect ("favorite-list")
+    
+
+class  CheckoutView(View):
+
+    def get(self,request,*args,**kwargs):
+        return render(request,"checkout.html")
+    
+    def post(self,request,*args,**kwargs):
+        email=request.POST.get("email")
+        phone=request.POST.get("phone")
+        
+
+
+        
+        
+        # try:
+        #     basket_items=request.user.cart.cart_items
+
+
+        #     for bi in basket_items:
+        #         OrderItems.objects.create(
+        #             order_object=order_obj,
+        #             basket_item_object=bi
+        #         )
+        #         bi.is_order_placed=True
+        #         bi.save()
+
+        # except:
+        #     order_obj.delete()
+        # finally:redirect("index")
+
+class  LatestView(View):
+
+    def get(self,request,*args,**kwargs):
+        return render(request,"latest.html")
+    
+class  SupportView(View):
+
+    def get(self,request,*args,**kwargs):
+        return render(request,"support.html")

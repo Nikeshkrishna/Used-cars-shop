@@ -58,6 +58,10 @@ class favouriteItem(models.Model):
     updated_date=models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(default=True)
 
+    @property
+    def cart_items(self):
+        return self.cartitem
+
 
 
 
@@ -66,6 +70,26 @@ def create_basket(sender,instance,created,**kwargs):
         favourites.objects.create(owner=instance)
 
 post_save.connect(create_basket,sender=User)
+
+class Order(models.Model):
+    user_object=models.ForeignKey(User,on_delete=models.CASCADE,related_name="purchase")
+    phone=models.CharField(max_length=12)
+    email=models.CharField(max_length=200,null=True)
+    is_paid=models.BooleanField(default=False)
+    order_id=models.CharField(max_length=200,null=True)
+    option=(
+        ("booked","booked"),
+        ("delivered","delivered"),
+        ("cancelled","cancelled")
+    )
+    status=models.CharField(max_length=200,choices=option,default="booked")
+    @property
+    def get_order_items(self):
+        return self.purchaseitems.all()
+    
+class OrderItems(models.Model):
+    order_object=models.ForeignKey(Order,on_delete=models.CASCADE,related_name="purchaseitems")
+    basket_item_object=models.ForeignKey(favouriteItem,on_delete=models.CASCADE)
 
 
 
